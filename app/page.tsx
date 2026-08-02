@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState, useEffect } from "react";
 import { parse } from "papaparse";
 
 interface CostEntry {
@@ -167,6 +167,31 @@ export default function Home() {
   const [status, setStatus] = useState("");
   const [draft, setDraft] = useState<DraftEntry>(emptyDraft);
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("vehicle-log-rows");
+      if (raw) {
+        const parsed = JSON.parse(raw) as CostEntry[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setRows(parsed);
+        }
+      }
+      const vn = localStorage.getItem("vehicle-log-vehicleName");
+      if (vn) setVehicleName(vn);
+    } catch (e) {
+      // ignore parse errors
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("vehicle-log-rows", JSON.stringify(rows));
+      localStorage.setItem("vehicle-log-vehicleName", vehicleName || "");
+    } catch (e) {
+      // ignore storage errors (e.g. quota)
+    }
+  }, [rows, vehicleName]);
 
   const getSortValue = (row: CostEntry, key: SortKey) => {
     if (key === 'date') return row.date || '';
@@ -399,6 +424,25 @@ export default function Home() {
     if (editingRowId === id) {
       setEditingRowId(null);
       setDraft(emptyDraft);
+    }
+  };
+
+  const handleClearRows = () => {
+    if (rows.length === 0) return;
+    const confirmed = window.confirm(
+      `Weet je zeker dat je alle ${rows.length} regels wilt verwijderen?`
+    );
+    if (confirmed) {
+      setRows([]);
+      setEditingRowId(null);
+      setDraft(emptyDraft);
+      try {
+        localStorage.removeItem("vehicle-log-rows");
+        localStorage.removeItem("vehicle-log-vehicleName");
+      } catch (e) {
+        // ignore
+      }
+      setStatus("Alle regels zijn verwijderd.");
     }
   };
 
@@ -637,6 +681,14 @@ export default function Home() {
               onClick={() => window.print()}
             >
               Afdrukken
+            </button>
+            <button
+              className="button secondary"
+              type="button"
+              disabled={rows.length === 0}
+              onClick={handleClearRows}
+            >
+              Verwijder alle regels
             </button>
             <button className="button primary" type="button" disabled={rows.length === 0} onClick={handleUpload}>
               Upload naar database
