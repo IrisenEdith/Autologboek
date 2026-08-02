@@ -12,18 +12,18 @@
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.8.0",
     "@supabase/supabase-js": "^2.33.0",
-    "next": "15.2.1",
+    "next": "^16.2.12",
     "papaparse": "^5.4.1",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.15.13",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.4",
     "@types/react-dom": "^18.3.0",
-    "@netlify/plugin-nextjs": "^5.15.13",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "15.2.1",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.12",
     "typescript": "^5.6.3"
   }
 }
